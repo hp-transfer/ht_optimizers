@@ -10,6 +10,7 @@ from hp_transfer_optimizers._transfer_utils import project_configs
 from hp_transfer_optimizers._transfer_utils import rank_configs
 from hp_transfer_optimizers._transfer_utils import sortout_configs
 from hp_transfer_optimizers.core.successivehalving import SuccessiveHalving
+from hp_transfer_optimizers.gp import GPSampler
 from hp_transfer_optimizers.tpe import TPESampler
 
 
@@ -30,20 +31,23 @@ class _TransferTPESampler:
         logger=None,
         best_first=True,
         do_ttpe=True,
-    ):
+        use_gp=False):
         self.do_ttpe = do_ttpe
         self.logger = logger
         self.best_first = best_first
 
-        self.tpe_current = TPESampler(
-            configspace,
-            top_n_percent,
-            num_samples,
-            random_fraction,
-            bandwidth_factor,
-            min_bandwidth,
-            logger,
-        )
+        if use_gp:
+            self.tpe_current = GPSampler(configspace, logger=self.logger)
+        else:
+            self.tpe_current = TPESampler(
+                configspace,
+                top_n_percent,
+                num_samples,
+                random_fraction,
+                bandwidth_factor,
+                min_bandwidth,
+                logger,
+            )
 
         self.configspace = configspace
 
@@ -84,19 +88,27 @@ class _TransferTPESampler:
                 _dict_config_to_array(config, self.configspace_intersection)
                 for config in config_ranking_previous_projected
             ]
-            self.tpe_transfer = TPESampler(
-                self.configspace_intersection,
-                top_n_percent,
-                num_samples,
-                random_fraction,
-                bandwidth_factor,
-                min_bandwidth,
-                logger,
-                config_ranking_previous_projected,
-                list(range(len(config_ranking_previous_projected))),
-            )
+            if use_gp:
+                self.tpe_transfer = GPSampler(
+                    configspace,
+                    logger=self.logger,
+                    configs=config_ranking_previous_projected,
+                    losses=list(range(len(
+                        config_ranking_previous_projected))),
+                )
+            else:
+                self.tpe_transfer = TPESampler(
+                    self.configspace_intersection,
+                    top_n_percent,
+                    num_samples,
+                    random_fraction,
+                    bandwidth_factor,
+                    min_bandwidth,
+                    logger,
+                    config_ranking_previous_projected,
+                    list(range(len(config_ranking_previous_projected))),
+                )
 
-            # 7.
 
     @property
     def configs(self):
@@ -167,10 +179,11 @@ class TransferTPE(hp_transfer_optimizers.core.master.Master):
         min_bandwidth=1e-3,
         best_first=True,
         do_ttpe=True,
-        **kwargs,
+        use_gp=False, **kwargs,
     ):
         super().__init__(**kwargs)
 
+        self.use_gp = use_gp
         self.do_ttpe = do_ttpe
         self.config_generator = None
 
@@ -226,6 +239,7 @@ class TransferTPE(hp_transfer_optimizers.core.master.Master):
             logger=self.logger,
             best_first=self.best_first,
             do_ttpe=self.do_ttpe,
+            use_gp=self.use_gp,
         )
         result = super()._run(
             n_iterations=n_iterations,

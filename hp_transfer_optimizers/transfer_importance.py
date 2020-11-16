@@ -12,6 +12,7 @@ from hp_transfer_optimizers._transfer_utils import project_configs
 from hp_transfer_optimizers._transfer_utils import rank_configs
 from hp_transfer_optimizers._transfer_utils import sortout_configs
 from hp_transfer_optimizers.core.successivehalving import SuccessiveHalving
+from hp_transfer_optimizers.gp import GPSampler
 from hp_transfer_optimizers.tpe import TPESampler
 
 
@@ -26,6 +27,7 @@ class _TransferImportanceSampler:
         min_bandwidth=1e-3,
         previous_results=None,
         logger=None,
+        use_gp=False
     ):
         self.logger = logger
 
@@ -91,18 +93,15 @@ class _TransferImportanceSampler:
             )
 
             # 6. Initialize tpe for the only_important configspace
-            self.tpe_current = TPESampler(
-                self.configspace_important_or_new,
-                top_n_percent,
-                num_samples,
-                random_fraction,
-                bandwidth_factor,
-                min_bandwidth,
-                logger,
-            )
+            tpe_configspace = self.configspace_important_or_new
+        else:
+            tpe_configspace = configspace
+
+        if use_gp:
+            self.tpe_current = GPSampler(tpe_configspace, logger=self.logger)
         else:
             self.tpe_current = TPESampler(
-                configspace,
+                tpe_configspace,
                 top_n_percent,
                 num_samples,
                 random_fraction,
@@ -151,10 +150,11 @@ class TransferImportance(hp_transfer_optimizers.core.master.Master):
         random_fraction=1 / 3,
         bandwidth_factor=3,
         min_bandwidth=1e-3,
-        **kwargs,
+        use_gp=False, **kwargs,
     ):
         super().__init__(**kwargs)
 
+        self.use_gp = use_gp
         self.config_generator = None
 
         self.top_n_percent = top_n_percent
@@ -206,6 +206,7 @@ class TransferImportance(hp_transfer_optimizers.core.master.Master):
             min_bandwidth=self.min_bandwidth,
             previous_results=previous_results,
             logger=self.logger,
+            use_gp=self.use_gp,
         )
         result = super()._run(
             n_iterations=n_iterations,
