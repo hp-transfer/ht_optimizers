@@ -133,7 +133,7 @@ class GPSampler:
                 stats=None,
                 num_points=1,
             )
-            sample = sample[0]
+            sample = sample[0][1]
         else:
             sample = self.configspace.sample_configuration()
 
