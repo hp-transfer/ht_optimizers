@@ -18,6 +18,10 @@ def _dict_config_to_array(config, configspace):
     return ConfigSpace.Configuration(configspace, config).get_array()
 
 
+def _dict_config_to_config(config, configspace):
+    return ConfigSpace.Configuration(configspace, config)
+
+
 class _TransferTPESampler:
     def __init__(
         self,
@@ -84,19 +88,23 @@ class _TransferTPESampler:
             self.best_previous_config_projected = config_ranking_previous_projected[0]
 
             # 6. Build TPE transfer
-            config_ranking_previous_projected = [
-                _dict_config_to_array(config, self.configspace_intersection)
-                for config in config_ranking_previous_projected
-            ]
             if use_gp:
+                config_ranking_previous_projected = [
+                    _dict_config_to_config(config, self.configspace_intersection)
+                    for config in config_ranking_previous_projected
+                ]
                 self.tpe_transfer = GPSampler(
-                    configspace,
+                    self.configspace_intersection,
                     logger=self.logger,
                     configs=config_ranking_previous_projected,
                     losses=list(range(len(
                         config_ranking_previous_projected))),
                 )
             else:
+                config_ranking_previous_projected = [
+                    _dict_config_to_array(config, self.configspace_intersection)
+                    for config in config_ranking_previous_projected
+                ]
                 self.tpe_transfer = TPESampler(
                     self.configspace_intersection,
                     top_n_percent,
@@ -108,7 +116,6 @@ class _TransferTPESampler:
                     config_ranking_previous_projected,
                     list(range(len(config_ranking_previous_projected))),
                 )
-
 
     @property
     def configs(self):
