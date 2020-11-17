@@ -35,7 +35,8 @@ class _TransferTPESampler:
         logger=None,
         best_first=True,
         do_ttpe=True,
-        use_gp=False):
+        use_gp=False, range_adjustment=True):
+        self.range_adjustment = range_adjustment
         self.do_ttpe = do_ttpe
         self.logger = logger
         self.best_first = best_first
@@ -145,18 +146,20 @@ class _TransferTPESampler:
         ):
             intersection_sample, _ = self.tpe_transfer.get_config(budget)
 
-            for hyperparameter in intersection_sample.keys():
-                if self.configspace_range_only_new.has_non_empty_only_new_range(
-                    hyperparameter
-                ):
-                    if random.random() < self.configspace_range_only_new.get_modification_probability(
+
+            if not self.range_adjustment:
+                for hyperparameter in intersection_sample.keys():
+                    if self.configspace_range_only_new.has_non_empty_only_new_range(
                         hyperparameter
                     ):
-                        intersection_sample[
+                        if random.random() < self.configspace_range_only_new.get_modification_probability(
                             hyperparameter
-                        ] = self.configspace_range_only_new.modify_hyperparameter(
-                            hyperparameter
-                        )
+                        ):
+                            intersection_sample[
+                                hyperparameter
+                            ] = self.configspace_range_only_new.modify_hyperparameter(
+                                hyperparameter
+                            )
 
             sample = fill_intersection(intersection_sample)
         else:  # no model available at all
@@ -186,10 +189,11 @@ class TransferTPE(hp_transfer_optimizers.core.master.Master):
         min_bandwidth=1e-3,
         best_first=True,
         do_ttpe=True,
-        use_gp=False, **kwargs,
+        use_gp=False, range_adjustment=True, **kwargs,
     ):
         super().__init__(**kwargs)
 
+        self.range_adjustment = range_adjustment
         self.use_gp = use_gp
         self.do_ttpe = do_ttpe
         self.config_generator = None
@@ -247,6 +251,7 @@ class TransferTPE(hp_transfer_optimizers.core.master.Master):
             best_first=self.best_first,
             do_ttpe=self.do_ttpe,
             use_gp=self.use_gp,
+            range_adjustment=self.range_adjustment
         )
         result = super()._run(
             n_iterations=n_iterations,
