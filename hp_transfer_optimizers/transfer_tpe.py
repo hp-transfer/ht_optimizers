@@ -28,7 +28,7 @@ class _TransferTPESampler:
         configspace,
         top_n_percent,
         num_samples=64,
-        random_fraction=1 / 3,
+        random_fraction=1 / 2,
         bandwidth_factor=3,
         min_bandwidth=1e-3,
         previous_results=None,
@@ -40,9 +40,10 @@ class _TransferTPESampler:
         self.do_ttpe = do_ttpe
         self.logger = logger
         self.best_first = best_first
+        self.random_fraction = random_fraction
 
         if use_gp:
-            self.tpe_current = GPSampler(configspace, logger=self.logger)
+            self.tpe_current = GPSampler(configspace, logger=self.logger, random_fraction=0)
         else:
             self.tpe_current = TPESampler(
                 configspace,
@@ -100,6 +101,7 @@ class _TransferTPESampler:
                     configs=config_ranking_previous_projected,
                     losses=list(range(len(
                         config_ranking_previous_projected))),
+                    random_fraction=0,
                 )
             else:
                 config_ranking_previous_projected = [
@@ -139,6 +141,8 @@ class _TransferTPESampler:
             and self.best_previous_config_projected is not None
         ):
             sample = fill_intersection(self.best_previous_config_projected)
+        elif np.random.rand() < self.random_fraction:
+            sample = self.configspace.sample_configuration()
         elif self.tpe_current.has_model:
             sample, _ = self.tpe_current.get_config(budget)
         elif (
@@ -146,8 +150,7 @@ class _TransferTPESampler:
         ):
             intersection_sample, _ = self.tpe_transfer.get_config(budget)
 
-
-            if not self.range_adjustment:
+            if self.range_adjustment:
                 for hyperparameter in intersection_sample.keys():
                     if self.configspace_range_only_new.has_non_empty_only_new_range(
                         hyperparameter
