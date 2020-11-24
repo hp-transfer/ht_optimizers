@@ -49,7 +49,7 @@ class _TransferTPESampler:
                 configspace,
                 top_n_percent,
                 num_samples,
-                random_fraction,
+                0,
                 bandwidth_factor,
                 min_bandwidth,
                 logger,
