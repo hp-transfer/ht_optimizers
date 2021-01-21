@@ -23,7 +23,8 @@ class _TransferTopSampler:
         min_bandwidth=1e-3,
         previous_results=None,
         logger=None,
-    use_gp=False):
+        use_gp=False
+    ):
         self.logger = logger
 
         self.configspace = configspace
@@ -41,7 +42,6 @@ class _TransferTopSampler:
             (
                 configspace_intersection,
                 configspace_only_new,
-                _,
             ) = get_configspace_partitioning(
                 self.configspace, results_previous_adjustment.configspace
             )

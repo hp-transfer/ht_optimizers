@@ -46,7 +46,6 @@ class _TransferImportanceSampler:
             (
                 configspace_intersection,
                 configspace_only_new,
-                _,
             ) = get_configspace_partitioning(self.configspace, configspace_old)
 
             # 3. Project configs to the intersection configspace

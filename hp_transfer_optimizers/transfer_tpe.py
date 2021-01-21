@@ -71,7 +71,6 @@ class _TransferTPESampler:
             (
                 self.configspace_intersection,
                 _,
-                self.configspace_range_only_new,
             ) = get_configspace_partitioning(
                 self.configspace, results_previous_adjustment.configspace
             )
@@ -149,20 +148,6 @@ class _TransferTPESampler:
             self.do_ttpe and self.tpe_transfer is not None and self.tpe_transfer.has_model
         ):
             intersection_sample, _ = self.tpe_transfer.get_config(budget)
-
-            if self.range_adjustment:
-                for hyperparameter in intersection_sample.keys():
-                    if self.configspace_range_only_new.has_non_empty_only_new_range(
-                        hyperparameter
-                    ):
-                        if random.random() < self.configspace_range_only_new.get_modification_probability(
-                            hyperparameter
-                        ):
-                            intersection_sample[
-                                hyperparameter
-                            ] = self.configspace_range_only_new.modify_hyperparameter(
-                                hyperparameter
-                            )
 
             sample = fill_intersection(intersection_sample)
         else:  # no model available at all
