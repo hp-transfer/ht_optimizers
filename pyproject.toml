@@ -1,12 +1,12 @@
 [build-system]
 requires = ["poetry>=1.0.0"]
-build-backend = "poetry.masonry.api"
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "hp_transfer_optimizers"
 version = "0.1.0"
 description = ""
-authors = ["Danny Stoll, Diane Wagner"]
+authors = ["Danny Stoll", "Diane Wagner"]
 readme = "README.md"
 license = "MIT"
 
