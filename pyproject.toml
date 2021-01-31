@@ -1,7 +1,3 @@
-[build-system]
-requires = ["poetry>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
 [tool.poetry]
 name = "hp_transfer_optimizers"
 version = "0.1.0"
@@ -11,25 +7,25 @@ readme = "README.md"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "<3.8,>=3.6.1"
+python = ">=3.7,<3.8"  # <3.8 comes from HPOBench
 ConfigSpace = "^0.4.11"
 Pyro4 = "^4.80"
 statsmodels = "^0.11.1"
 netifaces = "^0.10.9"
 pandas = "^1.0.4"
-numpy = "^1.18.5"
+numpy = "^1.20.0"
 more_itertools = "^8.3.0"
 emcee = "^2.1"
 scikit-optimize = "^0.7"
-smac = {git = "https://github.com/automl/SMAC3.git", rev = "v0.12.0"}
+smac = {git = "https://github.com/automl/SMAC3.git", rev = "v0.12.1"}
 fanova = "^2.0.19"
 
 [tool.poetry.dev-dependencies]
 jupyter = "^1.0"
-pre-commit = "^1.20"
-black = "^19.10b0"
-isort = "^4.3"
-pylint = {git = "https://github.com/PyCQA/pylint.git", rev = "3649312233b39a74b4f631bae1e242f5bc7bde2c"}
+pre-commit = "^2.10"
+black = "20.8b1"
+isort = "^5.7"
+pylint = "^2.6"
 
 [tool.black]
 line-length = 90
@@ -48,7 +44,7 @@ lines_between_types = 1
 not_skip = "__init__.py"
 filter_files = true
 
-[tool.pylint.messages_control]
+[tool.pylint.messages_control]  # Can use lists now, maybe update in future
 disable = """
 all
 """
@@ -68,6 +64,7 @@ dangerous-default-value,duplicate-key,useless-else-on-loop,expression-not-assign
 unnecessary-lambda,pointless-statement,unnecessary-pass,unreachable,eval-used,exec-used,using-constant-test,
 deprecated-lambda,blacklisted-name,misplaced-comparison-constant,singleton-comparison,unneeded-not,
 consider-iterating-dictionary,consider-using-enumerate,empty-docstring,unidiomatic-typecheck,
+condition-evals-to-constant,
 # ------------------------------------
 # Async
 # ------------------------------------
@@ -106,7 +103,7 @@ undefined-loop-variable,global-statement,global-at-module-level,
 format-needs-mapping,truncated-format-string,missing-format-string-key,mixed-format-string,too-few-format-args,
 bad-str-strip-call,too-many-format-args,bad-format-character,format-combined-specification,bad-format-string-key,
 bad-format-string,missing-format-attribute,missing-format-argument-key,unused-format-string-argument,
-unused-format-string-key,invalid-format-index,
+unused-format-string-key,invalid-format-index,f-string-without-interpolation
 # ------------------------------------
 # String Constant
 # ------------------------------------
@@ -126,8 +123,8 @@ not-an-iterable,not-a-mapping,
 # -----------------------------------
 # Format
 # -----------------------------------
-bad-indentation,mixed-indentation,unnecessary-semicolon,bad-whitespace,missing-final-newline,mixed-line-endings,
-multiple-statements,trailing-newlines,trailing-whitespace,unexpected-line-ending-format,superfluous-parens,
+bad-indentation,unnecessary-semicolon,missing-final-newline,mixed-line-endings,multiple-statements,trailing-newlines,
+trailing-whitespace,unexpected-line-ending-format,superfluous-parens,
 # ------------------------------------
 # Classes
 # ------------------------------------
@@ -136,5 +133,11 @@ invalid-slots,invalid-slots-object,no-method-argument,no-self-argument,unexpecte
 non-iterator-returned,invalid-length-returned,protected-access,attribute-defined-outside-init,abstract-method,
 bad-staticmethod-argument,non-parent-init-called,super-init-not-called,no-classmethod-decorator,
 no-staticmethod-decorator,no-self-use,bad-classmethod-argument,bad-mcs-classmethod-argument,bad-mcs-method-argument,
-method-check-failed,
+method-check-failed,invalid-bool-returned,invalid-index-returned,invalid-repr-returned,invalid-str-returned,
+invalid-bytes-returned,invalid-hash-returned,invalid-length-hint-returned,invalid-format-returned,
+invalid-getnewargs-returned,invalid-getnewargs-ex-returned,super-with-arguments
 """
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
