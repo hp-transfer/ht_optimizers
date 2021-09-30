@@ -11,7 +11,7 @@ import pandas as pd
 from hp_transfer_optimizers.core.base_iteration import Datum
 
 
-class Run(object):
+class Run:
     """
         Not a proper class, more a 'struct' to bundle important
         information about a particular run
@@ -74,7 +74,7 @@ def extract_HBS_learning_curves(runs):
     ]
 
 
-class JSONResultLogger(object):
+class JSONResultLogger:
     def __init__(self, directory, overwrite=False):
         """
         convenience logger for 'semi-live-results'
@@ -219,7 +219,7 @@ def logged_results_to_HBS_result(directory):
     return Result([data], HB_config)
 
 
-class Result(object):
+class Result:
     """
     Object returned by the HB_master.run function
 
@@ -457,7 +457,7 @@ class Result(object):
         self.data = new_dict
 
     def num_iterations(self):
-        return max([k[0] for k in self.data.keys()]) + 1
+        return max(k[0] for k in self.data.keys()) + 1
 
     def get_fANOVA_data(
         self, config_space, budgets=None, loss_fn=lambda r: r.loss, failed_loss=None

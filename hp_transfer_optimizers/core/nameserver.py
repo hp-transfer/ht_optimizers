@@ -13,7 +13,7 @@ def nic_name_to_host(nic_name):
     return host
 
 
-class NameServer(object):
+class NameServer:
     """
     The nameserver serves as a phonebook-like lookup table for your workers. Unique
     names are created so the workers can work in parallel and register their results

@@ -10,7 +10,7 @@ import Pyro4
 import Pyro4.errors
 
 
-class Worker(object):
+class Worker:
     """
     The worker is responsible for evaluating a single configuration on a single budget
     at a time. Communication to the individual workers goes via the nameserver,

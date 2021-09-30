@@ -3,7 +3,7 @@ import logging
 import numpy as np
 
 
-class Datum(object):
+class Datum:
     def __init__(
         self,
         config,
@@ -32,7 +32,7 @@ class Datum(object):
         )
 
 
-class BaseIteration(object):
+class BaseIteration:
     """
     Base class for various iteration possibilities. This decides what configuration should
     be run on what budget next. Typical choices are e.g. successive halving. Results from
@@ -150,7 +150,7 @@ class BaseIteration(object):
         if not skip_sanity_checks:
             assert d.config == config, "Configurations differ!"
             assert d.status == "RUNNING", "Configuration wasn't scheduled for a run."
-            assert d.budget == budget, "Budgets differ (%f != %f)!" % (
+            assert d.budget == budget, "Budgets differ ({:f} != {:f})!".format(
                 self.data[config_id]["budget"],
                 budget,
             )
