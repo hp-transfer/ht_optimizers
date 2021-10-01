@@ -158,6 +158,7 @@ class GPSampler:
         config = ConfigSpace.Configuration(self.configspace, job.kwargs["config"])
         self.configs.append(config)
         self.losses.append(loss)
+        self.runhistory.add(config, loss, 0, StatusType.SUCCESS)
 
         if self.has_model:
             X = convert_configurations_to_array(self.configs)
